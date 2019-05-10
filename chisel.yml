@@ -1,0 +1,13 @@
+ewasm:
+  file: "build/optimized.wasm"
+  output: "ewasm_token.wasm"
+  remapimports:
+    preset: "ewasm"
+  trimexports:
+    preset: "ewasm"
+  trimstartfunc:
+    preset: "ewasm"
+  verifyimports:
+    preset: "ewasm"
+  
+
