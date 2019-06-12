@@ -1,5 +1,3 @@
-import "allocator/arena";
-
 // ewasm imports
 @external("ethereum", "finish")
 declare function ethereum_finish(dataOffset: i32, length: i32): void;
@@ -24,7 +22,8 @@ export function main(): void {
   if (ethereum_getCallDataSize() < 4)
     ethereum_revert(0, 0);
 
-  var ptrSelector : i32 = memory.allocate(4);
+  var ptrSelector : i32 = __alloc(4, 0);
+    
   ethereum_callDataCopy(ptrSelector, 0, 4);
   var selector : i32 = load<i32>(ptrSelector);
     switch(selector) {
@@ -45,10 +44,11 @@ function do_balance(): void {
   if (ethereum_getCallDataSize() !== 24)
     ethereum_revert(0, 0);
 
-    var ptrStorageKey : i32 = memory.allocate(32);
+    var ptrStorageKey: i32 = __alloc(32, 0);
     var ptrAddress : i32 = ptrStorageKey + 12;
     ethereum_callDataCopy(ptrAddress, 4, 20);
-    var ptrBalance : i32 = memory.allocate(32);
+
+    var ptrBalance: i32 = __alloc(32,0);
     ethereum_storageLoad(ptrStorageKey, ptrBalance);
     ethereum_finish(ptrBalance, 32);
 }
@@ -60,25 +60,25 @@ function do_transfer(): void {
         ethereum_revert(0, 0);
 
     // successfully returned
-    var senderKey : i32 = memory.allocate(32);
+    var senderKey: i32 = __alloc(32, 0);
     var ptrSender : i32 = senderKey + 12;
     ethereum_getCaller(ptrSender);
 
     // successfully returned
-    var recipientKey : i32 = memory.allocate(32);
+    var recipientKey: i32 = __alloc(32,0);
     var ptrRecipient : i32 = recipientKey + 12;
     ethereum_callDataCopy(ptrRecipient, 4, 20);
 
     // successfully returned
-    var ptrValue32 : i32 = memory.allocate(32);
+    var ptrValue32: i32 = __alloc(32, 0);
     var ptrValue8 : i32 = ptrValue32 + 24;
     ethereum_callDataCopy(ptrValue8, 24, 8);1
 
     // successfully returned
-    var ptrSenderBalance = memory.allocate(32);
+    var ptrSenderBalance = __alloc(32,0);
 
     // successfully returned?
-    var ptrRecipientBalance = memory.allocate(32);
+    var ptrRecipientBalance = __alloc(32,0);
     
     ethereum_storageLoad(senderKey, ptrSenderBalance);
     ethereum_storageLoad(recipientKey, ptrRecipientBalance);
@@ -93,7 +93,7 @@ function do_transfer(): void {
 
     //var finalBalance = senderBalance - value;
     var finalBalance = senderBalance - value;
-    var ptrFinalBalance = memory.allocate(32);
+    var ptrFinalBalance = __alloc(32,0);
     store<i32>(ptrFinalBalance+28, finalBalance);
 
     store<i32>(ptrRecipientBalance, recipientBalance + value);
